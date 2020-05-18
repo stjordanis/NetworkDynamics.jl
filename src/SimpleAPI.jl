@@ -17,13 +17,17 @@ function scalar_network_with_sum(f, h, graph, p)
         nothing
     end
 
-    @inline function hsws_v!(dv, v, e_s, e_t, p, t)
-        dv[1] = f(v[1], p, t) + sum( [e[1] for e in e_s] ) + sum( [e[2] for e in e_t] )
+    @inline function hsws_v!(dv, v, p, t, i)
+        dv[1] = f(v[1], p, t) + i
         nothing
+    end
+
+    @inline function aggregator(e_s, e_d)
+        sum( [e[1] for e in e_s] ) + sum( [e[2] for e in e_d] )
     end
 
     odevertex = ODEVertex(f! = hsws_v!, dim = 1)
     staticedge = StaticEdge(f! = hsws_e!, dim = 2)
 
-    network_dynamics(odevertex, staticedge, graph)
+    network_dynamics(odevertex, staticedge, aggregator, graph)
 end

@@ -14,13 +14,12 @@ end
     nothing
 end
 
-@inline function diffusion_vertex!(dv, v, e_s, e_d, p, t)
-    dv .= 0.
-    oriented_edge_sum!(dv, e_s, e_d) # Oriented sum of the incoming and outgoing edges
+@inline function diffusion_vertex!(dv, v, p, t, i)
+    dv .= i
     nothing
 end
 
-@inline function diff_stat_vertex!(v, e_s, e_d, p, t)
+@inline function diff_stat_vertex!(v, p, t, i)
     v .= 0.
     nothing
 end
