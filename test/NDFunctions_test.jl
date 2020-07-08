@@ -53,7 +53,7 @@ sdedge = StaticDelayEdge(f! = kuramoto_delay_edge!, dim = 2)
 ddevertex = DDEVertex(f! = kuramoto_delay_vertex!, dim = 1)
 
 
-
+# Test that the constructors work as they should and that the elements of the lists have the correct type, DDE should be added
 vertex_list_1 = [odevertex for v in 1:10]
 @test eltype(vertex_list_1) == ODEVertex{typeof(diffusion_vertex!)}
 
@@ -62,7 +62,13 @@ vertex_list_2 = [staticvertex for v in 1:10]
 
 
 
+# Now check that lists with mixed vertex types can be converted correctly or raise the correct errors
+# the following conversion should work
+# Static -> ODE -> Delay -> VertexFunction
+# the reverse directions should fail
+
 vertex_list_3 = [v % 2 == 0 ? odevertex : staticvertex for v in 1:10]
+
 vertex_list_4 = Array{VertexFunction}(vertex_list_3)
 @test eltype(vertex_list_4) == VertexFunction
 
@@ -72,6 +78,10 @@ vertex_list_5 = Array{ODEVertex}(vertex_list_3)
 
 @test_throws MethodError Array{StaticVertex}(vertex_list_3) # this should error out
 
+
+## Do the same with the edges
+
+
 edge_list_1 = [odeedge for v in 1:10]
 @test eltype(edge_list_1) == ODEEdge{typeof(diff_dyn_edge!)}
 
@@ -80,3 +90,8 @@ edge_list_3 = [v % 2 == 0 ? odeedge : staticedge for v in 1:10]
 edge_list_4 = Array{EdgeFunction}(edge_list_3)
 edge_list_5 = Array{ODEEdge}(edge_list_3)
 @test_throws MethodError Array{StaticEdge}(edge_list_3) # this should error out
+
+
+
+## Now take all of the above lists, use them with network_dynamics(vlist, elist, g) and test if the resulting ODEFunction is callable without error
+## Also test network_dynamics  with each given combination of vertex and edge separately, that is network_dynamics(vertex!, edge!, g)
