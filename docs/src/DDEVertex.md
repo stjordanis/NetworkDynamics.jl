@@ -165,7 +165,7 @@ kdedge! = StaticDelayEdge(f! = kuramoto_delay_edge!, dim=2)
 kdvertex! = ODEVertex(f! = kuramoto_vertex!, dim = 1)
 ```
 
-Note that the edges have the dimension two, since there is no more symmetric coupling for the Kuramoto case. Accordingly, we have to set the keywork argument `dim` of `StaticDelayEdge` to two. The returned objects (nd_diffusion_vertex and nd_diffusion_edge) are passed to the key construcor network_dynamics together with informations of the graph which are contained in `g`.
+Note that the edges have the dimension two, since there is no more symmetric coupling for the Kuramoto case. Accordingly, we have to set the keywork argument `dim` of `StaticDelayEdge` to two. The returned objects (`nd_diffusion_vertex` and `nd_diffusion_edge`) are passed to the key construcor `network_dynamics` together with informations of the graph which are contained in `g`.
 
 ```@example DDEVertex
 nd! = network_dynamics(kdvertex!, kdedge!, g)
