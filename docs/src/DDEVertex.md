@@ -68,7 +68,7 @@ g = watts_strogatz(N, k, 0.) # ring-network
 The Watts-Strogatz algorithm constructs a regular-ring network with $N$ nodes, $k$ neighbors and a probability $p$ of rewiring links, which is chosen as $p=0$ here.
 
 ```@example DDEVertex
-using NetworkDynamcs
+using NetworkDynamics
 
 nd_diffusion_vertex = DDEVertex(f! = diffusionvertex!, dim = 1)
 nd_diffusion_edge = StaticEdge(f! = diffusionedge!, dim = 1)
