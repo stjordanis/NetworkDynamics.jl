@@ -1,6 +1,6 @@
 # Experimental DDE Tutorial
 
- An `IJulia` [notebook](https://github.com/FHell/NetworkDynamics.jl/tree/master/examples) corresponding to this tutorial is available on GitHub.
+ An `IJulia` [notebook](https://github.com/FHell/NetworkDynamics.jl/tree/master/examples) corresponding to this tutorial will be available on GitHub soon.
 
 #### Topics covered in this tutorial include:
  * constructing a watts_strogatz graph
@@ -11,9 +11,9 @@
 
 ## Network Diffusion
 
-This example explains the use of delay differential equations (DDE's) in NetworkDynamics.jl by modeling a simple diffusion on an undirected ring network with delay. A corresponding IJulia notebook is available on GitHub.
+This example explains the use of delay differential equations (DDE's) in NetworkDynamics.jl by modeling a simple diffusion on an undirected ring network with delay.
 
-Let $g$ be a graph with $N$ nodes and adjacency matrix $A$. Let $v = (v_1, \dots, v_n)$ be a vector of (abstract) temperatures or concentrations at each node $i = 1, \dots, N$. The rate of change of state $v_i$ in this artificially example is described by the delay value of $v_i$ with delay $\Tau$ and its difference with its neighbors with coupling strength $\sigma$. We obtain the following ordinary differential equation
+Let $g$ be a graph with $N$ nodes and adjacency matrix $A$. Let $v = (v_1, \dots, v_n)$ be a vector of (abstract) temperatures or concentrations at each node $i = 1, \dots, N$. The rate of change of state $v_i$ in this artificial example is described by the delay value of $v_i$ with delay $\Tau$ and its difference with its neighbors with coupling strength $\sigma$. We obtain the following ordinary differential equation
 
 ```math
 \begin{aligned}
@@ -55,7 +55,7 @@ nothing # hide
 ```
 # Constructing the Network Dynamics
 
-Constructing the network dynamics is straight forward
+Constructing the network dynamics is straightforward
 ```@example DDEVertex
 using LightGraphs
 
@@ -113,10 +113,10 @@ nd_diffusion_vertex_2 = DDEVertex(f! = diffusionvertex!, dim = 2, sym = [:x, :ϕ
 nd_diffusion_edge_2 = StaticDelayEdge(f! = diffusionedge!, dim = 2)
 nd_2 = network_dynamics(nd_diffusion_vertex_2, nd_diffusion_edge_2, g)
 ```
-Secondly, the initial conditions are generated, where the first N values correspond to variable `x` and the values with indices from N+1 to 2N to state-variable `ϕ`, where $x ~ N(0,1)$; $ϕ ~ N(0,1)^2$. The parameter value for the delay $\Tau$ is set to 1.0.
+Secondly, the initial conditions are generated, where the first N values correspond to variable `x` and the values with indices from N+1 to 2N to state-variable `ϕ`, where $x \sim  N(0,1)$; $ϕ \sim N(0,1)^2$. The parameter value for the delay $\Tau$ is set to 1.0.
 
 ```@example DDEVertex
-x0_2 = Array{Float64,1}(vec([randn(N).-10 randn(N).^2]')) # x ~ N(0,1); ϕ ~ N(0,1)^2
+x0_2 = Array{Float64,1}(vec([randn(N).-10 randn(N).^2]')) # x ~ \mathcal{N}(0,1); ϕ ~ \mathcal{N}(0,1)^2
 
 p = (nothing, nothing, 1.) # p = (vertexparameters, edgeparameters, delaytime)
 ```
