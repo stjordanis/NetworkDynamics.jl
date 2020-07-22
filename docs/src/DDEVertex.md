@@ -17,7 +17,7 @@ Let $g$ be a graph with $N$ nodes and adjacency matrix $A$. Let $v = (v_1, \dots
 
 ```math
 \begin{aligned}
-\dot v_i = - v_i(\Tau) - \sigma * \sum_{i=1}^N A_{ij} (v_i - v_j)
+\dot v_i(t) = - v_i(t-\Tau) - \sigma * \sum_{i=1}^N A_{ij} (v_i(t) - v_j(t))
 \end{aligned}
 ```
 
@@ -101,7 +101,7 @@ using DelayDiffEq
 dde_prob = DDEProblem(nd, x0, h, tspan, p)
 sol = solve(dde_prob, MethodOfSteps(Tsit5()))
 ```
- We solve the problem with delay on the time interval $[0, 10]$ with the `Tsit5()` algorithm, which is the Tsitouras 5/4 Runge-Kutta method (a free 4th order interpolant), recommended for solving non-stiff problems. The additional algorithm `MethodOfSteps` translates an `OrdinaryDiffEq.jl` ODE solver method into a method for delay differential equations which is highly efficient.
+ We solve the problem with delay on the time interval $[0, 10]$ with the `Tsit5()` algorithm, recommended for solving non-stiff problems. The additional algorithm `MethodOfSteps` translates an `OrdinaryDiffEq.jl` ODE solver method into a method for delay differential equations which is highly efficient.
 
 ## Bonus: Two independet diffusions
 
@@ -120,7 +120,7 @@ x0_2 = Array{Float64,1}(vec([randn(N).-10 randn(N).^2]')) # x ~ \mathcal{N}(0,1)
 
 p = (nothing, nothing, 1.) # p = (vertexparameters, edgeparameters, delaytime)
 ```
-Now we can define the `DDEProblem`and then solve it. The `DDEProblem` is a wrapper function, which delivers an `ODEFunction`, which is compatible with the solvers of `DelayDiffEq.jl`.
+Now we can define the `DDEProblem`and then solve it. 
 
 ```@Example DDEVertex
 dde_prob_2 = DDEProblem(nd_2, x0_2, h, tspan, p)
