@@ -1,6 +1,10 @@
 using Test
 import NetworkDynamics.NDFunctions
 using NetworkDynamics.NDFunctions
+using LightGraphs
+using NetworkDynamics
+using OrdinaryDiffEq
+using DelayDiffEq
 
 printstyled("--- Function Typology --- \n", bold=true, color=:white)
 
@@ -59,18 +63,18 @@ vertex_list_2 = [staticvertex for v in 1:10]
 @test eltype(vertex_list_2) == StaticVertex{typeof(diff_stat_vertex!)}
 
 vertex_list_3 = [ddevertex for v in 1:10]
-@test eltype(vertex_list_6) == DDEVertex{typeof(kuramoto_delay_vertex!)}
+@test eltype(vertex_list_3) == DDEVertex{typeof(kuramoto_delay_vertex!)}
 
 vertex_list_4 = [v % 2 == 0 ? odevertex : staticvertex for v in 1:10]
 
 vertex_list_5 = Array{VertexFunction}(vertex_list_4)
-@test eltype(vertex_list_4) == VertexFunction
+@test eltype(vertex_list_5) == VertexFunction
 
 vertex_list_6 = Array{ODEVertex}(vertex_list_4)
-@test eltype(vertex_list_5) == ODEVertex
+@test eltype(vertex_list_6) == ODEVertex
 
 vertex_list_7 = Array{DDEVertex}(vertex_list_4)
-@test eltype(vertex_list_6) == DDEVertex
+@test eltype(vertex_list_7) == DDEVertex
 
 @test_throws MethodError Array{StaticVertex}(vertex_list_4) # this should error out
 
@@ -79,10 +83,10 @@ edge_list_1 = [staticedge for v in 1:10]
 @test eltype(edge_list_1) == StaticEdge{typeof(diffusion_edge!)}
 
 edge_list_2 = [odeedge for v in 1:10]
-@test eltype(edge_list_1) == ODEEdge{typeof(diff_dyn_edge!)}
+@test eltype(edge_list_2) == ODEEdge{typeof(diff_dyn_edge!)}
 
 edge_list_3 = [sdedge for v in 1:10]
-@test eltype(edge_list_1) == StaticDelayEdge{typeof(kuramoto_delay_edge!)}
+@test eltype(edge_list_3) == StaticDelayEdge{typeof(kuramoto_delay_edge!)}
 
 edge_list_4 = [v % 2 == 0 ? odeedge : staticedge for v in 1:10]
 
@@ -92,8 +96,8 @@ edge_list_5 = Array{EdgeFunction}(edge_list_4)
 edge_list_6 = Array{ODEEdge}(edge_list_4)
 @test eltype(edge_list_6) == ODEEdge
 
-edge_list_7 = Array{DDEEdge}(edge_list_4)
-@test eltype(edge_list_7) == DDEEdge
+edge_list_7 = Array{StaticDelayEdge}(edge_list_4)
+@test eltype(edge_list_7) == StaticDelayEdge
 
 @test_throws MethodError Array{StaticEdge}(edge_list_4) # this should error out
 
