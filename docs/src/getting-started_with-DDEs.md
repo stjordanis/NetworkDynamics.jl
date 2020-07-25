@@ -13,19 +13,19 @@
 
 This example explains the use of delay differential equations (DDE's) in NetworkDynamics.jl by modeling a simple diffusion on an undirected ring network with delay.
 
-Let $g$ be a graph with $N$ nodes and adjacency matrix $A$. Let $v = (v_1, \dots, v_n)$ be a vector of (abstract) temperatures or concentrations at each node $i = 1, \dots, N$. The rate of change of state $v_i$ in this artificial example is described by the delay value of $v_i$ with delay $\Tau$ and its difference with its neighbors with coupling strength $\sigma$. We obtain the following ordinary differential equation
+Let $g$ be a graph with $N$ nodes and adjacency matrix $A$. Let $v = (v_1, \dots, v_n)$ be a vector of (abstract) temperatures or concentrations at each node $i = 1, \dots, N$. The rate of change of state $v_i$ in this artificial example is described by the delay value of $v_i$ with delay $\tau$ and its difference with its neighbors with coupling strength $\sigma$. We obtain the following ordinary differential equation:
 
 ```math
 \begin{aligned}
-\dot v_i(t) = - v_i(t-\Tau) - \sigma * \sum_{i=1}^N A_{ij} (v_i(t) - v_j(t))
+\dot v_i(t) = - v_i(t-\tau) - \sigma * \sum_{i=1}^N A_{ij} (v_i(t) - v_j(t))
 \end{aligned}
 ```
 
-The sum on the right hand side plays the role of a (discrete) gradient. If the temperature at node $i$ is higher than at its neighboring node $j$ it will decrease along that edge.
+The sum on the right hand side plays the role of a (discrete) gradient. If the temperature at node $i$ is higher than at its neighboring node $j$, it will decrease along that edge.
 
 ## Modeling diffusion with delay in NetworkDynamics.jl
 
-From the equation above we see that in this model the dynamics of the nodes consist of internal dynamics as well as a coupling term with the neighboring nodes. In NetworkDynamics.jl the interactions with the neighbors are described by equations for the edges.
+From the equation above, we see that in this model the dynamics of the nodes consist of internal dynamics as well as a coupling term with the neighboring nodes. In NetworkDynamics.jl, the interactions with the neighbors are described by equations for the edges.
 
 ```@example DDEVertex
 function diffusionedge!(e, v_s, v_d, p, t)
@@ -35,7 +35,7 @@ function diffusionedge!(e, v_s, v_d, p, t)
 end
 nothing # hide
 ```
-The internal dynamics are determined by the delay value $\dot v_i = v_i(\Tau)$ and are described in the vertex function with help of the history array $h_v$ containing the delay values of the vertex.
+The internal dynamics are determined by the delay value $\dot v_i(t) = - v_i(t-\tau)$ and are described in the vertex function with help of the history array $h_v$ containing the delay values of the vertex.
 ```@example DDEVertex
 function diffusionvertex!(dv, v, e_s, e_d, h_v, p, t)
    # usually dv, v, e_s, e_d, h_v are arrays, hence we use the broadcasting operator .
@@ -76,10 +76,10 @@ nd_diffusion_edge = StaticEdge(f! = diffusionedge!, dim = 1)
 nd = network_dynamics(nd_diffusion_vertex, nd_diffusion_edge, g)
 ```
 
-Now we hand over the functions we have defined above to the constructors `DDEVertex` and `StaticEdge`, adding information on the dimension of variables at each edge or node with keyword **`dim`**. The wrapper function `DDEVertex` is a new feature describing internal delay dynamics of nodes. The resulting objects can then be delivered to the key constructor `network_dynamics`, which adds topological information of graph **`g`** and returns an `DDEFunction`, which is compatible with the solvers of `DifferentialEquations.jl`.
+Now we hand over the functions we have defined above to the constructors `DDEVertex` and `StaticEdge`, adding information on the dimension of variables at each edge or node with keyword **`dim`**. The wrapper function `DDEVertex` is a new feature describing internal delay dynamics of nodes. The resulting objects can then be delivered to the key constructor `network_dynamics`, which adds topological information of graph **`g`** and returns an `DDEFunction`, which is compatible with the solvers of DifferentialEquations.jl.
 
 # Simulation
-First we set the initial conditions, the time-interval `tspan`, construct the history function `h(x,p,t)` and set the parameters `p`, which are now extended to take parameters for the delay-time too.
+First, we set the initial conditions, the time-interval `tspan`, construct the history function `h(x,p,t)` and set the parameters `p`, which are now extended to take parameters for the delay-time too.
 ```@example DDEVertex
 
 x0 = randn(N) # random initial conditions
@@ -92,7 +92,7 @@ h(out, p, t) = (out .= 1.)
 p = (nothing, nothing, 1.)
 ```
 Then we solve the diffusion problem.
-The constructor `DDEProblem` is from the package `DealyDiffEq.jl` and wraps up the `DDEFunction` with the initial conditions `x0` , the history function `h` , time-interval `tspan` and parameters `p`, which can than be handed over to the `solve` method.
+The constructor `DDEProblem` is from the package `DelayDiffEq.jl` and wraps up the `DDEFunction` with the initial conditions `x0` , the history function `h` , time-interval `tspan` and parameters `p`, which can than be handed over to the `solve` method.
 
 ```@example DDEVertex
 using OrdinaryDiffEq
@@ -105,33 +105,33 @@ sol = solve(dde_prob, MethodOfSteps(Tsit5()))
 
 ## Bonus: Two independet diffusions
 
-In this extension of the first example, we will have two independent diffusions on the same network with variables $x$ and $\phi$, such that the **`dim`**=2.
-First we construct the `network_dynamics`-objects.
+In this extension of the first example, we will have two independent diffusions on the same network with variables $x$ and $\phi$, such that the dimension is set to **`dim`**=2.
+First, we construct the `network_dynamics`-objects.
 
 ```@example DDEVertex
 nd_diffusion_vertex_2 = DDEVertex(f! = diffusionvertex!, dim = 2, sym = [:x, :ϕ])
 nd_diffusion_edge_2 = StaticDelayEdge(f! = diffusionedge!, dim = 2)
 nd_2 = network_dynamics(nd_diffusion_vertex_2, nd_diffusion_edge_2, g)
 ```
-Secondly, the initial conditions are generated, where the first N values correspond to variable `x` and the values with indices from N+1 to 2N to state-variable `ϕ`, where $x \sim  N(0,1)$; $ϕ \sim N(0,1)^2$. The parameter value for the delay $\Tau$ is set to 1.0.
+Secondly, the initial conditions are generated, where the first $N$ values correspond to variable `x` and the values with indices from $N+1$ to $2N$ belong to state-variable `ϕ`, where $x \sim  N(0,1)$; $ϕ \sim N(0,1)^2$. The parameter value for the delay $\tau$ is set to 1.0.
 
 ```@example DDEVertex
 x0_2 = Array{Float64,1}(vec([randn(N).-10 randn(N).^2]')) # x ~ \mathcal{N}(0,1); ϕ ~ \mathcal{N}(0,1)^2
 
 p = (nothing, nothing, 1.) # p = (vertexparameters, edgeparameters, delaytime)
 ```
-Now we can define the `DDEProblem`and then solve it. 
+Now we can define the `DDEProblem`and then solve it.
 
 ```@Example DDEVertex
 dde_prob_2 = DDEProblem(nd_2, x0_2, h, tspan, p)
 sol_2 = solve(dde_prob_2, MethodOfSteps(Tsit5()));
 plot(sol_2, legend=false)
 ```
-As a solver we use again `Tsit5()` with the `MethodOfSteps`-algorithm.
+As a solver, we use again `Tsit5()` with the `MethodOfSteps`-algorithm.
 
 ## Kuramoto model with delay
 
-An additional example which will be explained in the following is the Kuramoto model. Instead of modeling a simple diffusion on an undirected ring network, we will use the Kuramoto model for the vertices and the edges but keep delay and the Watts-Strogatz graph as in the examples above.
+An additional example is the Kuramoto model and will be explained in the following. Instead of modeling a simple diffusion on an undirected ring network, we will use the Kuramoto model for the vertices and the edges but keep delay and the Watts-Strogatz graph as in the examples above.
 
 Again, the interactions with the neighbors are described through the edge function. Unlike the diffusion example, here the edges now have a delay. For this reason we introduce the history arrays for the destination vertices and source vertices.
 
@@ -163,17 +163,17 @@ end
 As for the diffusion example, we now hand over the defined functions for the Kuramoto edges and vertices to the constructors `DDEVertex` and `StaticEdge` of NetworkDynamics.jl.
 
 ```@example DDEVertex
-kdedge! = StaticDelayEdge(f! = kuramoto_delay_edge!, dim=2)
+kdedge! = StaticDelayEdge(f! = kuramoto_delay_edge!, dim = 2)
 kdvertex! = ODEVertex(f! = kuramoto_vertex!, dim = 1)
 ```
 
-Note that the edges have the dimension two, since there is no more symmetric coupling for the Kuramoto case. Accordingly, we have to set the keywork argument `dim` of `StaticDelayEdge` to two. The returned objects (`nd_diffusion_vertex` and `nd_diffusion_edge`) are passed to the key construcor `network_dynamics` together with informations of the graph which are contained in `g`.
+Note that the edges have the dimension two, since there is no more symmetric coupling for the Kuramoto case. Accordingly, we have to set the keywork argument `dim` of `StaticDelayEdge` to `dim = 2`. The returned objects (`nd_diffusion_vertex` and `nd_diffusion_edge`) are passed to the key construcor `network_dynamics` together with the information of the graph which are contained in `g`.
 
 ```@example DDEVertex
 nd! = network_dynamics(kdvertex!, kdedge!, g)
 ```
 
-The object `nd!` returned by `network_dynamics`, is compatible with the solvers of `DifferentialEquations`.
+The object `nd!` returned by `network_dynamics`, is compatible with the solvers of DifferentialEquations.jl.
 
 Afterwards, random initial conditions are set for all $N$ nodes, as well as the simulation time `tspan`, the eigenfrequencies `ω` of the $N$ vertices, and the parameters `p` for the edges, the vertices, and the delay. Since we are dealing with a system containg a time delay, we need to set the history function `h` as for the examples above. The history function sets all default entries to 1.0 and is in-place to save allocations.
 
