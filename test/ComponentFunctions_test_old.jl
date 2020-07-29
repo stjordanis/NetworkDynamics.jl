@@ -1,6 +1,6 @@
 using Test
-import NetworkDynamics.NDFunctions
-using NetworkDynamics.NDFunctions
+import NetworkDynamics.ComponentFunctions
+using NetworkDynamics.ComponentFunctions
 
 printstyled("--- Function Typology --- \n", bold=true, color=:white)
 
